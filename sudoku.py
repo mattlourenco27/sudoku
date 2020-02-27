@@ -1,8 +1,15 @@
 # Created on 18 Feb 2020
 # Created by: Matthew Lourenco
 # This is a program that simulates sudoku
-from typing import List
+#
+# Rules:
+# https://sudoku.com/how-to-play/sudoku-rules-for-complete-beginners/
+from numpy import array
 
+#Inputs: (int) row, (int) column, (int) value
+#Outputs: Boolean
+#Returns true if the number 'value' can be played at given row and column. Returns false if the number 'value' cannot
+#   be placed the given row and column
 def valid_play(row, col, value):
 
     assert isinstance(row, int)
@@ -35,15 +42,32 @@ def valid_play(row, col, value):
 
     return True
 
-board: List[List[int]] = [[0, 0, 0, 0, 0, 1, 0, 0, 0],
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                          [0, 0, 0, 0, 0, 6, 0, 0, 0],
-                          [0, 0, 0, 4, 0, 0, 0, 0, 0],
-                          [0, 0, 0, 0, 8, 0, 0, 0, 0],
-                          [2, 0, 9, 0, 0, 0, 0, 0, 7],
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                          [0, 0, 0, 0, 0, 3, 0, 0, 0],
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+
+def valid_numbers(row, col):
+
+    assert isinstance(row, int)
+    assert isinstance(col, int)
+
+    valid_nums = []
+
+    if(board[row][col] != 0):
+        return array([])
+
+    for number in range(1, 10):
+        if(valid_play(row, col, number)):
+            valid_nums.append(number)
+
+    return valid_nums
 
 
-#print(valid_play(0, 6, 2))
+board = array([[0, 0, 0, 0, 0, 1, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 6, 0, 0, 0],
+               [0, 0, 0, 4, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 8, 0, 0, 0, 0],
+               [2, 0, 9, 0, 0, 0, 0, 0, 7],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 3, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+
+print(valid_numbers(0, 0))
