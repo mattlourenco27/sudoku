@@ -4,14 +4,28 @@
 #
 # Rules:
 # https://sudoku.com/how-to-play/sudoku-rules-for-complete-beginners/
+#
+# Sample board:
+'''
+[[0, 0, 0, 0, 0, 1, 0, 0, 0],
+ [0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0, 6, 0, 0, 0],
+ [0, 0, 0, 4, 0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 8, 0, 0, 0, 0],
+ [2, 0, 9, 0, 0, 0, 0, 0, 7],
+ [0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0, 3, 0, 0, 0],
+ [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+'''
+
 from numpy import array
 
-#Inputs: (int) row, (int) column, (int) value
-#Outputs: Boolean
-#Returns true if the number 'value' can be played at given row and column. Returns false if the number 'value' cannot
+
+# Inputs: (int) row, (int) column, (int) value
+# Outputs: Boolean
+# Returns true if the number 'value' can be played at given row and column. Returns false if the number 'value' cannot
 #   be placed the given row and column
 def valid_play(row, col, value):
-
     assert isinstance(row, int)
     assert isinstance(col, int)
     assert isinstance(value, int)
@@ -21,7 +35,7 @@ def valid_play(row, col, value):
         return False
 
     # Check for valid bounds
-    if row < 0 or col < 0 or value < 1 or row > 8 or col > 8 or value > 9 :
+    if row < 0 or col < 0 or value < 1 or row > 8 or col > 8 or value > 9:
         return False
 
     # Check for matching numbers in the row or column
@@ -43,18 +57,20 @@ def valid_play(row, col, value):
     return True
 
 
+# Inputs: (int) row, (int) column
+# Outputs: List
+# returns a list of valid numbers that can be placed at given row and column
 def valid_numbers(row, col):
-
     assert isinstance(row, int)
     assert isinstance(col, int)
 
     valid_nums = []
 
-    if(board[row][col] != 0):
-        return array([])
+    if board[row][col] != 0:
+        return []
 
     for number in range(1, 10):
-        if(valid_play(row, col, number)):
+        if valid_play(row, col, number):
             valid_nums.append(number)
 
     return valid_nums
