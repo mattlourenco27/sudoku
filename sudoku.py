@@ -59,7 +59,7 @@ def valid_play(row, col, value):
 
 # Inputs: (int) row, (int) column
 # Outputs: List
-# returns a list of valid numbers that can be placed at given row and column
+# Returns a list of valid numbers that can be placed at given row and column
 def valid_numbers(row, col):
     assert isinstance(row, int)
     assert isinstance(col, int)
@@ -74,6 +74,36 @@ def valid_numbers(row, col):
             valid_nums.append(number)
 
     return valid_nums
+
+
+# Inputs: None
+# Outputs: success (Boolean)
+# Returns true if the board can be solved. False if the board has no solution
+# This function implements the backtracking algorithm, in which the board is filled in one-by-one until a square is
+# reached that has no solutions. It then backtracks to try other numbers in previous squares until all options are
+# exhausted. If the board is valid at any point then it returns true.
+def solve_backtracking():
+    pass
+
+
+# Inputs: None
+# Outputs: valid (Boolean)
+# Returns true if all of the non-zero spaces on the board are valid
+def valid_board():
+
+    for row in range(9):
+        for col in range(9):
+            if board[row][col] != 0:
+                prev_num = board[row][col]
+                board[row][col] = 0
+                if not valid_play(row, col, prev_num):
+                    board[row][col] = prev_num
+                    # print("Invalid value at " + row + ", " + col)
+                    return False
+                board[row][col] = prev_num
+
+    return True
+
 
 
 board = array([[0, 0, 0, 0, 0, 1, 0, 0, 0],
