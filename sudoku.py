@@ -19,6 +19,7 @@
 '''
 
 from copy import deepcopy
+
 import pygame
 
 
@@ -209,13 +210,8 @@ def setup_display():
 # Inputs: None
 # Outputs: None
 # Draws the board to the display
-def draw_board(player_board=True):
+def draw_board():
     setup_display()
-
-    use_board = usr_board
-
-    if not player_board:
-        use_board = board
 
     text = pygame.font.Font(None, 80)
     channel_width = SCREEN_SIZE[0] / 9
@@ -223,8 +219,11 @@ def draw_board(player_board=True):
 
     for row in range(9):
         for col in range(9):
-            if use_board[row][col] != 0:
-                text_surface = text.render(str(use_board[row][col]), True, BLACK)
+            if board[row][col] != 0:
+                colour = BLACK
+                if template[row][col] == 0:
+                    colour = (100, 100, 100)
+                text_surface = text.render(str(board[row][col]), True, colour)
                 text_rect = text_surface.get_rect()
                 text_rect.center = ((col + 0.5) * channel_width, (row + 0.5) * channel_height)
                 screen.blit(text_surface, text_rect)
@@ -250,7 +249,7 @@ def draw_highlight(col, row):
 # Controls the game event loop
 def game_loop():
     global clicked_tile
-    global usr_board
+    global board
 
     running = True
     while running:
@@ -263,8 +262,9 @@ def game_loop():
             elif event.type == pygame.KEYDOWN:
                 # Solve the sudoku board
                 if event.key == pygame.K_RETURN:
+                    board = deepcopy(template)
                     solve_backtracking()
-                    draw_board(False)
+                    draw_board()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Set the clicked tile. Highlight it when mouse up
@@ -297,44 +297,45 @@ def game_loop():
                         draw_board()
 
             elif event.type == pygame.KEYUP:
-                if clicked_tile[0] != -1 and clicked_tile[1] != -1 and board[clicked_tile[1]][clicked_tile[0]] == 0:
+                # If a tile is highlighted and the highlighted tile can be changed, change it
+                if clicked_tile[0] != -1 and clicked_tile[1] != -1 and template[clicked_tile[1]][clicked_tile[0]] == 0:
                     if event.key == pygame.K_0:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 0
+                        board[clicked_tile[1]][clicked_tile[0]] = 0
                     elif event.key == pygame.K_1:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 1
+                        board[clicked_tile[1]][clicked_tile[0]] = 1
                     elif event.key == pygame.K_2:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 2
+                        board[clicked_tile[1]][clicked_tile[0]] = 2
                     elif event.key == pygame.K_3:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 3
+                        board[clicked_tile[1]][clicked_tile[0]] = 3
                     elif event.key == pygame.K_4:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 4
+                        board[clicked_tile[1]][clicked_tile[0]] = 4
                     elif event.key == pygame.K_5:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 5
+                        board[clicked_tile[1]][clicked_tile[0]] = 5
                     elif event.key == pygame.K_6:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 6
+                        board[clicked_tile[1]][clicked_tile[0]] = 6
                     elif event.key == pygame.K_7:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 7
+                        board[clicked_tile[1]][clicked_tile[0]] = 7
                     elif event.key == pygame.K_8:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 8
+                        board[clicked_tile[1]][clicked_tile[0]] = 8
                     elif event.key == pygame.K_9:
-                        usr_board[clicked_tile[1]][clicked_tile[0]] = 9
+                        board[clicked_tile[1]][clicked_tile[0]] = 9
                     setup_display()
                     draw_board()
                     draw_highlight(clicked_tile[0], clicked_tile[1])
 
 
-board = [[0, 0, 0, 0, 0, 1, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 6, 0, 0, 0],
-         [0, 0, 0, 4, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 8, 0, 0, 0, 0],
-         [2, 0, 9, 0, 0, 0, 0, 0, 7],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 3, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+template = [[0, 0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 6, 0, 0, 0],
+            [0, 0, 0, 4, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 8, 0, 0, 0, 0],
+            [2, 0, 9, 0, 0, 0, 0, 0, 7],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 3, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
 # Board that the user will edit when attempting to solve
-usr_board = deepcopy(board)
+board = deepcopy(template)
 
 # Defined constants
 LIGHT_GREY = (240, 240, 240)
