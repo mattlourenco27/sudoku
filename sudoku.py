@@ -78,7 +78,6 @@ def valid_numbers(row, col):
 # exhausted. If the board is valid at any point then it returns true.
 def solve_backtracking():
     solve_backtracking_helper(0, 0)
-    print_board()
     return valid_board()
 
 
@@ -172,6 +171,76 @@ def print_board():
     print("+---+---+---+")
 
 
+# Inputs: None
+# Outputs: None
+# Sets up the display surface
+def setup_display():
+    screen.fill(LIGHT_GREY)
+
+    # Draw the row dividers
+    for row_divider in range(1, 9):
+        line_width = 3
+        if row_divider % 3 == 0:
+            line_width = 5
+
+        channel_width = SCREEN_SIZE[1] / 9
+
+        pygame.draw.line(screen, BLACK,
+                         (0, row_divider * channel_width),
+                         (SCREEN_SIZE[0], row_divider * channel_width),
+                         line_width)
+
+    # Draw the column dividers
+    for col_divider in range(1, 9):
+        line_width = 3
+        if col_divider % 3 == 0:
+            line_width = 5
+
+        channel_width = SCREEN_SIZE[0] / 9
+
+        pygame.draw.line(screen, BLACK,
+                         (col_divider * channel_width, 0),
+                         (col_divider * channel_width, SCREEN_SIZE[1]),
+                         line_width)
+
+    pygame.display.update()
+
+
+# Inputs: None
+# Outputs: None
+# Draws the board to the display
+def draw_board():
+    setup_display()
+
+    text = pygame.font.Font(None, 80)
+    channel_width = SCREEN_SIZE[0] / 9
+    channel_height = SCREEN_SIZE[1] / 9
+
+    for row in range(9):
+        for col in range(9):
+            if board[row][col] != 0:
+                text_surface = text.render(str(board[row][col]), True, BLACK)
+                text_rect = text_surface.get_rect()
+                text_rect.center = ((col + 0.5) * channel_width, (row + 0.5) * channel_height)
+                screen.blit(text_surface, text_rect)
+    pygame.display.update()
+
+
+# Inputs: None
+# Outputs: None
+# Controls the game event loop
+def game_loop():
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    solve_backtracking()
+                    draw_board()
+
 board = array([[0, 0, 0, 0, 0, 1, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 0, 0, 0, 0, 6, 0, 0, 0],
@@ -183,9 +252,9 @@ board = array([[0, 0, 0, 0, 0, 1, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0]])
 
 # Defined constants
-LIGHT_GREY = 240, 240, 240
-BLACK = 0, 0, 0
-SCREEN_SIZE = 600, 600
+LIGHT_GREY = (240, 240, 240)
+BLACK = (0, 0, 0)
+SCREEN_SIZE = (600, 600)
 
 # Initialize the game
 pygame.init()
@@ -197,39 +266,7 @@ pygame.display.set_icon(icon)
 
 # Create the screen
 screen = pygame.display.set_mode(SCREEN_SIZE)
-screen.fill(LIGHT_GREY)
 
-# Draw the row dividers
-for row_divider in range (1, 9):
-    line_width = 3
-    if row_divider % 3 == 0:
-        line_width = 5
-
-    channel_width = SCREEN_SIZE[1] / 9
-
-    pygame.draw.line(screen, BLACK,
-                     (0, row_divider * channel_width),
-                     (SCREEN_SIZE[0], row_divider * channel_width),
-                     line_width)
-
-# Draw the column dividers
-for col_divider in range (1, 9):
-    line_width = 3
-    if col_divider % 3 == 0:
-        line_width = 5
-
-    channel_width = SCREEN_SIZE[0] / 9
-
-    pygame.draw.line(screen, BLACK,
-                     (col_divider * channel_width, 0),
-                     (col_divider * channel_width, SCREEN_SIZE[1]),
-                     line_width)
-
-pygame.display.update()
-
-# Event loop
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+setup_display()
+draw_board()
+game_loop()
