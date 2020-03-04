@@ -27,7 +27,6 @@ import pygame
 # Returns true if the number 'value' can be played at given row and column. Returns false if the number 'value' cannot
 #   be placed the given row and column
 def valid_play(row, col, value):
-
     # Check for existing number
     if board[row][col] != 0:
         return False
@@ -59,7 +58,6 @@ def valid_play(row, col, value):
 # Outputs: List
 # Returns a list of valid numbers that can be placed at given row and column
 def valid_numbers(row, col):
-
     valid_nums = []
 
     if board[row][col] != 0:
@@ -88,7 +86,6 @@ def solve_backtracking():
 # Outputs: Success at tile (Boolean)
 # Helper function to recursively solve the sudoku board
 def solve_backtracking_helper(row, col):
-
     # Check that row and col did not go out of bounds
     if row < 0 or row > 8 or col < 0 or col > 8:
         print("Row or column out of range\nRow: " + row + "\nColumn: " + col)
@@ -123,7 +120,7 @@ def solve_backtracking_helper(row, col):
 
     for i in numbers_to_play:
         # try all numbers
-        board[row][col] = i;
+        board[row][col] = i
 
         # Move on to see if the rest of the board can be solved
         if col == 8:
@@ -167,8 +164,8 @@ def print_board():
             print("+---+---+---+")
         for col in range(9):
             if col % 3 == 0:
-                print('|', end = '')
-            print(board[row][col], end = '')
+                print('|', end='')
+            print(board[row][col], end='')
         print("|")
     print("+---+---+---+")
 
@@ -186,8 +183,15 @@ board = array([[0, 0, 0, 0, 0, 1, 0, 0, 0],
 # Initialize the game
 pygame.init()
 
+pygame.display.set_caption("'Sudoku' made by mattlourenco27 on Github")
+# Icon made by Freepik from www.flaticon.com
+icon = pygame.image.load("./assets/sprites/icon.png")
+pygame.display.set_icon(icon)
+
 # create the screen
 screen = pygame.display.set_mode((810, 810))
+screen.fill((240, 240, 240))  # Set a light grey background
+pygame.display.update()
 
 # Event loop
 running = True
@@ -195,5 +199,3 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-print(solve_backtracking())
