@@ -19,6 +19,7 @@
 '''
 
 from numpy import array
+import pygame
 
 
 # Inputs: (int) row, (int) column, (int) value
@@ -79,6 +80,7 @@ def valid_numbers(row, col):
 # exhausted. If the board is valid at any point then it returns true.
 def solve_backtracking():
     solve_backtracking_helper(0, 0)
+    print_board()
     return valid_board()
 
 
@@ -156,6 +158,21 @@ def valid_board():
     return True
 
 
+# Inputs: None
+# Outputs: None
+# Prints the board to the console
+def print_board():
+    for row in range(9):
+        if row % 3 == 0:
+            print("+---+---+---+")
+        for col in range(9):
+            if col % 3 == 0:
+                print('|', end = '')
+            print(board[row][col], end = '')
+        print("|")
+    print("+---+---+---+")
+
+
 board = array([[0, 0, 0, 0, 0, 1, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 0, 0, 0, 0, 6, 0, 0, 0],
@@ -165,5 +182,18 @@ board = array([[0, 0, 0, 0, 0, 1, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 0, 0, 0, 0, 3, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+
+# Initialize the game
+pygame.init()
+
+# create the screen
+screen = pygame.display.set_mode((810, 810))
+
+# Event loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
 print(solve_backtracking())
