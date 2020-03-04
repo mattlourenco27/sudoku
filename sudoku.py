@@ -91,6 +91,8 @@ def solve_backtracking_helper(row, col):
         print("Row or column out of range\nRow: " + row + "\nColumn: " + col)
         return False
 
+    global board
+
     # numbers_to_play holds a list of valid numbers at this tile
     numbers_to_play = valid_numbers(row, col)
 
