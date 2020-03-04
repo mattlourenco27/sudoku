@@ -261,8 +261,16 @@ def game_loop():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Set the clicked tile. Highlight it when mouse up
                 if pygame.mouse.get_pressed()[0]:
-                    clicked_tile[0] = int(pygame.mouse.get_pos()[0] / SCREEN_SIZE[0] * 9)
-                    clicked_tile[1] = int(pygame.mouse.get_pos()[1] / SCREEN_SIZE[1] * 9)
+                    temp = [int(pygame.mouse.get_pos()[0] / SCREEN_SIZE[0] * 9),
+                            int(pygame.mouse.get_pos()[1] / SCREEN_SIZE[1] * 9)]
+                    if temp == clicked_tile:
+                        # Unhighlight the tile
+                        clicked_tile = [-1, -1]
+                        setup_display()
+                        draw_board()
+                    else:
+                        clicked_tile[0] = int(pygame.mouse.get_pos()[0] / SCREEN_SIZE[0] * 9)
+                        clicked_tile[1] = int(pygame.mouse.get_pos()[1] / SCREEN_SIZE[1] * 9)
             elif event.type == pygame.MOUSEBUTTONUP:
                 # Highlight the clicked tile if the mouse was not moved
                 if not pygame.mouse.get_pressed()[0]:
@@ -273,6 +281,7 @@ def game_loop():
                         draw_highlight(clicked_tile[0], clicked_tile[1])
                     else:
                         # Else do not highlight it
+                        clicked_tile = [-1, -1]
                         setup_display()
                         draw_board()
 
@@ -297,7 +306,7 @@ LIME = (0, 255, 0)
 SCREEN_SIZE = (600, 600)
 
 # Globals
-clicked_tile = [0, 0]
+clicked_tile = [-1, -1]
 
 # Initialize the game
 pygame.init()
