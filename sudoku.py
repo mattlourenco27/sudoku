@@ -182,6 +182,11 @@ board = array([[0, 0, 0, 0, 0, 1, 0, 0, 0],
                [0, 0, 0, 0, 0, 3, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0]])
 
+# Defined constants
+LIGHT_GREY = 240, 240, 240
+BLACK = 0, 0, 0
+SCREEN_SIZE = 600, 600
+
 # Initialize the game
 pygame.init()
 
@@ -190,9 +195,36 @@ pygame.display.set_caption("'Sudoku' made by mattlourenco27 on Github")
 icon = pygame.image.load("./assets/sprites/icon.png")
 pygame.display.set_icon(icon)
 
-# create the screen
-screen = pygame.display.set_mode((810, 810))
-screen.fill((240, 240, 240))  # Set a light grey background
+# Create the screen
+screen = pygame.display.set_mode(SCREEN_SIZE)
+screen.fill(LIGHT_GREY)
+
+# Draw the row dividers
+for row_divider in range (1, 9):
+    line_width = 3
+    if row_divider % 3 == 0:
+        line_width = 5
+
+    channel_width = SCREEN_SIZE[1] / 9
+
+    pygame.draw.line(screen, BLACK,
+                     (0, row_divider * channel_width),
+                     (SCREEN_SIZE[0], row_divider * channel_width),
+                     line_width)
+
+# Draw the column dividers
+for col_divider in range (1, 9):
+    line_width = 3
+    if col_divider % 3 == 0:
+        line_width = 5
+
+    channel_width = SCREEN_SIZE[0] / 9
+
+    pygame.draw.line(screen, BLACK,
+                     (col_divider * channel_width, 0),
+                     (col_divider * channel_width, SCREEN_SIZE[1]),
+                     line_width)
+
 pygame.display.update()
 
 # Event loop
