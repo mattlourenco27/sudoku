@@ -209,8 +209,6 @@ def setup_display():
 # Outputs: None
 # Draws the board to the display
 def draw_board():
-    setup_display()
-
     text = pygame.font.Font(None, 80)
     channel_width = SCREEN_SIZE[0] / 9
     channel_height = SCREEN_SIZE[1] / 9
@@ -346,6 +344,7 @@ def game_loop():
                         board[highlight_tile[1]][highlight_tile[0]] = 9
 
         draw_display()
+        clock.tick(60)
 
 
 template = [[0, 0, 0, 0, 0, 1, 0, 0, 0],
@@ -380,6 +379,9 @@ pygame.display.set_caption("'Sudoku' made by mattlourenco27 on Github")
 # Icon made by Freepik from www.flaticon.com
 icon = pygame.image.load("./assets/sprites/icon.png")
 pygame.display.set_icon(icon)
+
+# Create the game clock
+clock = pygame.time.Clock()
 
 # Create the screen
 screen = pygame.display.set_mode((SCREEN_SIZE[0] + SIDE_BAR, SCREEN_SIZE[1]))
