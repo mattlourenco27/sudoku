@@ -203,8 +203,6 @@ def setup_display():
                          (col_divider * channel_width, 0),
                          (col_divider * channel_width, SCREEN_SIZE[1]),
                          line_width)
-    draw_sideBar()
-    pygame.display.update()
 
 
 # Inputs: None
@@ -227,13 +225,14 @@ def draw_board():
                 text_rect = text_surface.get_rect()
                 text_rect.center = ((col + 0.5) * channel_width, (row + 0.5) * channel_height)
                 screen.blit(text_surface, text_rect)
-    pygame.display.update()
 
 
 # Inputs: (int) row, (int) column
 # Outputs: None
 # Draws a highlighted box at given row and column
 def draw_highlight(col, row):
+    if row < 0 or row > 8 or col < 0 or col > 8 or not draw_highlight_tile: return
+
     channel_width = SCREEN_SIZE[0] / 9
     channel_height = SCREEN_SIZE[1] / 9
     points = [(col * channel_width, row * channel_height),
@@ -241,24 +240,46 @@ def draw_highlight(col, row):
               ((col + 1) * channel_width, (row + 1) * channel_height),
               (col * channel_width, (row + 1) * channel_height)]
     pygame.draw.lines(screen, LIME, True, points, 5)
-    pygame.display.update()
 
 
 # Inputs: None
 # Outputs: None
 # Draws the sidebar for the game
-def draw_sideBar():
-    pygame.draw.line(screen, BLACK, (SCREEN_SIZE[0], 0), SCREEN_SIZE, 5)
+def draw_sidebar(mouse_over=False):
+    x_off = SCREEN_SIZE[0]  # X offset to the sidebar
+    pygame.draw.line(screen, BLACK, (x_off, 0), SCREEN_SIZE, 5)
+
+    # Set up text
+    text = pygame.font.Font(None, 36)
 
     # Solve board button
-    # pygame.draw.rect(screen, )
+    rect = pygame.Rect(x_off + 25, 25, 150, 50)
+    if mouse_over: pygame.draw.rect(screen, WHITE, rect)
+    pygame.draw.rect(screen, BLACK, rect, 5)
+    text_surface = text.render("Auto-Solve", True, BLACK)
+    text_rect = text_surface.get_rect()
+    text_rect.center = rect.center
+    screen.blit(text_surface, text_rect)
+
+
+# Inputs: None
+# Outputs: None
+# Draws the display every cycle
+def draw_display():
+    setup_display()
+    draw_sidebar()
+    draw_board()
+    draw_highlight(highlight_tile[0], highlight_tile[1])
+
+    pygame.display.update()
 
 
 # Inputs: None
 # Outputs: None
 # Controls the game event loop
 def game_loop():
-    global clicked_tile
+    global highlight_tile
+    global draw_highlight_tile
     global board
 
     running = True
@@ -274,64 +295,57 @@ def game_loop():
                 if event.key == pygame.K_RETURN:
                     board = deepcopy(template)
                     solve_backtracking()
-                    draw_board()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Set the clicked tile. Highlight it when mouse up
                 if pygame.mouse.get_pressed()[0]:
                     temp = [int(pygame.mouse.get_pos()[0] / SCREEN_SIZE[0] * 9),
                             int(pygame.mouse.get_pos()[1] / SCREEN_SIZE[1] * 9)]
-                    if temp == clicked_tile:
-                        # Unhighlight the tile
-                        clicked_tile = [-1, -1]
-                        setup_display()
-                        draw_board()
-                    else:
-                        clicked_tile[0] = int(pygame.mouse.get_pos()[0] / SCREEN_SIZE[0] * 9)
-                        clicked_tile[1] = int(pygame.mouse.get_pos()[1] / SCREEN_SIZE[1] * 9)
+                    if temp == highlight_tile:
+                        draw_highlight_tile = False
+                        highlight_tile[0] = -1
+                        highlight_tile[1] = -1
+                    elif temp[0] >= 0 and temp[0] <= 8 and temp[1] >= 0 and temp[1] <= 8:
+                        highlight_tile[0] = temp[0]
+                        highlight_tile[1] = temp[1]
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 # Highlight the clicked tile if the mouse was not moved
                 if not pygame.mouse.get_pressed()[0]:
                     temp = [int(pygame.mouse.get_pos()[0] / SCREEN_SIZE[0] * 9),
                             int(pygame.mouse.get_pos()[1] / SCREEN_SIZE[1] * 9)]
-                    if temp == clicked_tile:
-                        # If mouse up in same tile highlight it
-                        setup_display()
-                        draw_board()
-                        draw_highlight(clicked_tile[0], clicked_tile[1])
+                    if temp == highlight_tile:
+                        # If mouse up in same tile, highlight
+                        draw_highlight_tile = True
                     else:
                         # Else do not highlight it
-                        clicked_tile = [-1, -1]
-                        setup_display()
-                        draw_board()
+                        highlight_tile = [-1, -1]
 
             elif event.type == pygame.KEYUP:
                 # If a tile is highlighted and the highlighted tile can be changed, change it
-                if clicked_tile[0] != -1 and clicked_tile[1] != -1 and template[clicked_tile[1]][clicked_tile[0]] == 0:
+                if highlight_tile[0] != -1 and highlight_tile[1] != -1 and template[highlight_tile[1]][highlight_tile[0]] == 0:
                     if event.key == pygame.K_0 or event.key == pygame.K_BACKSPACE:
-                        board[clicked_tile[1]][clicked_tile[0]] = 0
+                        board[highlight_tile[1]][highlight_tile[0]] = 0
                     elif event.key == pygame.K_1:
-                        board[clicked_tile[1]][clicked_tile[0]] = 1
+                        board[highlight_tile[1]][highlight_tile[0]] = 1
                     elif event.key == pygame.K_2:
-                        board[clicked_tile[1]][clicked_tile[0]] = 2
+                        board[highlight_tile[1]][highlight_tile[0]] = 2
                     elif event.key == pygame.K_3:
-                        board[clicked_tile[1]][clicked_tile[0]] = 3
+                        board[highlight_tile[1]][highlight_tile[0]] = 3
                     elif event.key == pygame.K_4:
-                        board[clicked_tile[1]][clicked_tile[0]] = 4
+                        board[highlight_tile[1]][highlight_tile[0]] = 4
                     elif event.key == pygame.K_5:
-                        board[clicked_tile[1]][clicked_tile[0]] = 5
+                        board[highlight_tile[1]][highlight_tile[0]] = 5
                     elif event.key == pygame.K_6:
-                        board[clicked_tile[1]][clicked_tile[0]] = 6
+                        board[highlight_tile[1]][highlight_tile[0]] = 6
                     elif event.key == pygame.K_7:
-                        board[clicked_tile[1]][clicked_tile[0]] = 7
+                        board[highlight_tile[1]][highlight_tile[0]] = 7
                     elif event.key == pygame.K_8:
-                        board[clicked_tile[1]][clicked_tile[0]] = 8
+                        board[highlight_tile[1]][highlight_tile[0]] = 8
                     elif event.key == pygame.K_9:
-                        board[clicked_tile[1]][clicked_tile[0]] = 9
-                    setup_display()
-                    draw_board()
-                    draw_highlight(clicked_tile[0], clicked_tile[1])
+                        board[highlight_tile[1]][highlight_tile[0]] = 9
+
+        draw_display()
 
 
 template = [[0, 0, 0, 0, 0, 1, 0, 0, 0],
@@ -348,6 +362,7 @@ template = [[0, 0, 0, 0, 0, 1, 0, 0, 0],
 board = deepcopy(template)
 
 # Defined constants
+WHITE = (255, 255, 255)
 LIGHT_GREY = (240, 240, 240)
 BLACK = (0, 0, 0)
 LIME = (0, 255, 0)
@@ -355,7 +370,8 @@ SCREEN_SIZE = (600, 600)
 SIDE_BAR = 200
 
 # Globals
-clicked_tile = [-1, -1]
+highlight_tile = [-1, -1]
+draw_highlight_tile = False
 
 # Initialize the game
 pygame.init()
