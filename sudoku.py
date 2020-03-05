@@ -203,7 +203,7 @@ def setup_display():
                          (col_divider * channel_width, 0),
                          (col_divider * channel_width, SCREEN_SIZE[1]),
                          line_width)
-
+    draw_sideBar()
     pygame.display.update()
 
 
@@ -242,6 +242,16 @@ def draw_highlight(col, row):
               (col * channel_width, (row + 1) * channel_height)]
     pygame.draw.lines(screen, LIME, True, points, 5)
     pygame.display.update()
+
+
+# Inputs: None
+# Outputs: None
+# Draws the sidebar for the game
+def draw_sideBar():
+    pygame.draw.line(screen, BLACK, (SCREEN_SIZE[0], 0), SCREEN_SIZE, 5)
+
+    # Solve board button
+    # pygame.draw.rect(screen, )
 
 
 # Inputs: None
@@ -299,7 +309,7 @@ def game_loop():
             elif event.type == pygame.KEYUP:
                 # If a tile is highlighted and the highlighted tile can be changed, change it
                 if clicked_tile[0] != -1 and clicked_tile[1] != -1 and template[clicked_tile[1]][clicked_tile[0]] == 0:
-                    if event.key == pygame.K_0:
+                    if event.key == pygame.K_0 or event.key == pygame.K_BACKSPACE:
                         board[clicked_tile[1]][clicked_tile[0]] = 0
                     elif event.key == pygame.K_1:
                         board[clicked_tile[1]][clicked_tile[0]] = 1
@@ -342,6 +352,7 @@ LIGHT_GREY = (240, 240, 240)
 BLACK = (0, 0, 0)
 LIME = (0, 255, 0)
 SCREEN_SIZE = (600, 600)
+SIDE_BAR = 200
 
 # Globals
 clicked_tile = [-1, -1]
@@ -355,7 +366,7 @@ icon = pygame.image.load("./assets/sprites/icon.png")
 pygame.display.set_icon(icon)
 
 # Create the screen
-screen = pygame.display.set_mode(SCREEN_SIZE)
+screen = pygame.display.set_mode((SCREEN_SIZE[0] + SIDE_BAR, SCREEN_SIZE[1]))
 
 setup_display()
 draw_board()
