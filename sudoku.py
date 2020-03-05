@@ -240,10 +240,10 @@ def draw_highlight(col, row):
     pygame.draw.lines(screen, LIME, True, points, 5)
 
 
-# Inputs: None
+# Inputs: Mouse position (tuple)
 # Outputs: None
 # Draws the sidebar for the game
-def draw_sidebar(mouse_over=False):
+def draw_sidebar(mouse):
     x_off = SCREEN_SIZE[0]  # X offset to the sidebar
     pygame.draw.line(screen, BLACK, (x_off, 0), SCREEN_SIZE, 5)
 
@@ -252,7 +252,7 @@ def draw_sidebar(mouse_over=False):
 
     # Solve board button
     rect = pygame.Rect(x_off + 25, 25, 150, 50)
-    if mouse_over: pygame.draw.rect(screen, WHITE, rect)
+    if rect.collidepoint(mouse): pygame.draw.rect(screen, WHITE, rect)
     pygame.draw.rect(screen, BLACK, rect, 5)
     text_surface = text.render("Auto-Solve", True, BLACK)
     text_rect = text_surface.get_rect()
@@ -260,16 +260,30 @@ def draw_sidebar(mouse_over=False):
     screen.blit(text_surface, text_rect)
 
 
-# Inputs: None
+# Inputs: Mouse position (tuple)
 # Outputs: None
 # Draws the display every cycle
-def draw_display():
+def draw_display(mouse):
     setup_display()
-    draw_sidebar()
+    draw_sidebar(mouse)
     draw_board()
     draw_highlight(highlight_tile[0], highlight_tile[1])
 
     pygame.display.update()
+
+
+# Inputs: Mouse position (tuple)
+# Outputs: None
+# Handles mouse clicking when inside sidebar
+def sidebar_mouse_handle(mouse):
+    global board
+    global solved
+    x_off = SCREEN_SIZE[0]  # X offset to the sidebar
+    solve_rect = pygame.Rect(x_off + 25, 25, 150, 50)
+
+    if solve_rect.collidepoint(mouse) and not solved:
+        board = deepcopy(template)
+        solved = solve_backtracking()
 
 
 # Inputs: None
@@ -288,24 +302,29 @@ def game_loop():
                 pygame.quit()
                 quit()
 
-            elif event.type == pygame.KEYDOWN:
-                # Solve the sudoku board
-                if event.key == pygame.K_RETURN:
-                    board = deepcopy(template)
-                    solve_backtracking()
+            # elif event.type == pygame.KEYDOWN:
+            #     # Solve the sudoku board
+            #     if event.key == pygame.K_RETURN:
+            #         board = deepcopy(template)
+            #         solve_backtracking()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Set the clicked tile. Highlight it when mouse up
                 if pygame.mouse.get_pressed()[0]:
-                    temp = [int(pygame.mouse.get_pos()[0] / SCREEN_SIZE[0] * 9),
-                            int(pygame.mouse.get_pos()[1] / SCREEN_SIZE[1] * 9)]
-                    if temp == highlight_tile:
-                        draw_highlight_tile = False
-                        highlight_tile[0] = -1
-                        highlight_tile[1] = -1
-                    elif temp[0] >= 0 and temp[0] <= 8 and temp[1] >= 0 and temp[1] <= 8:
-                        highlight_tile[0] = temp[0]
-                        highlight_tile[1] = temp[1]
+                    # Check if mouse is over the sidebar
+                    rect = pygame.Rect(SCREEN_SIZE[0], 0, SIDE_BAR, SCREEN_SIZE[1])
+                    if rect.collidepoint(pygame.mouse.get_pos()):
+                        sidebar_mouse_handle(pygame.mouse.get_pos())
+                    else:
+                        temp = [int(pygame.mouse.get_pos()[0] / SCREEN_SIZE[0] * 9),
+                                int(pygame.mouse.get_pos()[1] / SCREEN_SIZE[1] * 9)]
+                        if temp == highlight_tile:
+                            draw_highlight_tile = False
+                            highlight_tile[0] = -1
+                            highlight_tile[1] = -1
+                        elif temp[0] >= 0 and temp[0] <= 8 and temp[1] >= 0 and temp[1] <= 8:
+                            highlight_tile[0] = temp[0]
+                            highlight_tile[1] = temp[1]
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 # Highlight the clicked tile if the mouse was not moved
@@ -321,7 +340,8 @@ def game_loop():
 
             elif event.type == pygame.KEYUP:
                 # If a tile is highlighted and the highlighted tile can be changed, change it
-                if highlight_tile[0] != -1 and highlight_tile[1] != -1 and template[highlight_tile[1]][highlight_tile[0]] == 0:
+                if highlight_tile[0] != -1 and highlight_tile[1] != -1 and template[highlight_tile[1]][
+                    highlight_tile[0]] == 0:
                     if event.key == pygame.K_0 or event.key == pygame.K_BACKSPACE:
                         board[highlight_tile[1]][highlight_tile[0]] = 0
                     elif event.key == pygame.K_1:
@@ -343,7 +363,8 @@ def game_loop():
                     elif event.key == pygame.K_9:
                         board[highlight_tile[1]][highlight_tile[0]] = 9
 
-        draw_display()
+        mouse = pygame.mouse.get_pos()
+        draw_display(mouse)
         clock.tick(60)
 
 
@@ -371,6 +392,7 @@ SIDE_BAR = 200
 # Globals
 highlight_tile = [-1, -1]
 draw_highlight_tile = False
+solved = False
 
 # Initialize the game
 pygame.init()
