@@ -177,6 +177,18 @@ def valid_board():
                 if not valid_play(row, col, prev_num):
                     # This number was not a valid play at this position
                     board[row][col] = prev_num
+
+                    # Check for 'check_placed' flag to update graphics
+                    if check_placed:
+                        channel_width = SCREEN_SIZE[0] / 9
+                        channel_height = SCREEN_SIZE[1] / 9
+
+                        # Transparent surface
+                        overlay = pygame.Surface((channel_width, channel_height), pygame.SRCALPHA)
+                        overlay.fill((255, 0, 0, 63))
+
+                        screen.blit(overlay, (col * channel_width, row * channel_height))
+
                     return False
                 board[row][col] = prev_num
 
@@ -365,6 +377,9 @@ def sidebar_mouse_handle(mouse):
     global solved
     global step_solve
     global pause_time
+    global check_placed
+    global highlight_tile
+    global draw_highlight_tile
 
     x_off = SCREEN_SIZE[0]  # X offset to the sidebar
     solve_rect = pygame.Rect(x_off + 25, 25, 150, 50)
@@ -399,10 +414,19 @@ def sidebar_mouse_handle(mouse):
         pause_time = 1000  # 1 sec
         points = [(0, 0), (SCREEN_SIZE[0], 0), SCREEN_SIZE, (0, SCREEN_SIZE[1])]
 
+        # Remove highlights
+        highlight_tile = [-1, -1]
+        draw_highlight_tile = False
+        draw_display(mouse)
+
+        check_placed = True
+
         # Choose colour based on if the board is valid
         colour = RED
         if valid_board():
             colour = LIME
+
+        check_placed = False
 
         pygame.draw.lines(screen, colour, True, points, 7)
         pygame.display.update()
@@ -519,6 +543,7 @@ highlight_tile = [-1, -1]
 draw_highlight_tile = False
 solved = False
 step_solve = False
+check_placed = False
 pause_time = 0  # Time to pause after this event loop in milliseconds
 
 # Initialize the game
