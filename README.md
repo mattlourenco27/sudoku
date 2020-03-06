@@ -1,4 +1,6 @@
-# Sudoku
+# Sudoku - Python3
+
+Necessary packages: Pygame
 
 Rules:
 https://sudoku.com/how-to-play/sudoku-rules-for-complete-beginners/
