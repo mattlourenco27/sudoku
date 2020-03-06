@@ -124,6 +124,18 @@ def solve_backtracking_helper(row, col):
         # try all numbers
         board[row][col] = i
 
+        # Step through the process if requested
+        if step_solve:
+            draw_display((0, 0))
+            pygame.time.wait(100)
+
+            # Allow quit signal
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    # Exit the game
+                    pygame.quit()
+                    quit()
+
         # Move on to see if the rest of the board can be solved
         if col == 8:
             if solve_backtracking_helper(row + 1, 0):
@@ -134,6 +146,18 @@ def solve_backtracking_helper(row, col):
 
         # This number did not work continue to the next one
         board[row][col] = 0
+
+        # Step through the process if requested
+        if step_solve:
+            draw_display((0, 0))
+            pygame.time.wait(100)
+
+            # Allow quit signal
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    # Exit the game
+                    pygame.quit()
+                    quit()
 
     # If the function reached this point then it has exhausted all possible numbers in this position without success
     return False
@@ -311,6 +335,15 @@ def draw_sidebar(mouse):
     text_rect.center = rect.center
     screen.blit(text_surface, text_rect)
 
+    # Restart button
+    rect = rect.move(0, 75)
+    if rect.collidepoint(mouse): pygame.draw.rect(screen, WHITE, rect)
+    pygame.draw.rect(screen, BLACK, rect, 5)
+    text_surface = text.render("Restart", True, BLACK)
+    text_rect = text_surface.get_rect()
+    text_rect.center = rect.center
+    screen.blit(text_surface, text_rect)
+
 
 # Inputs: Mouse position (tuple)
 # Outputs: None
@@ -330,6 +363,7 @@ def draw_display(mouse):
 def sidebar_mouse_handle(mouse):
     global board
     global solved
+    global step_solve
     global pause_time
 
     x_off = SCREEN_SIZE[0]  # X offset to the sidebar
@@ -337,14 +371,20 @@ def sidebar_mouse_handle(mouse):
     step_solve_rect = solve_rect.move(0, 75)
     check_solved_rect = step_solve_rect.move(0, 75)
     check_placed_rect = check_solved_rect.move(0, 75)
-
+    restart_rect = check_placed_rect.move(0, 75)
 
     if solve_rect.collidepoint(mouse) and not solved:
         board = deepcopy(template)
         solved = solve_backtracking()
 
+    if step_solve_rect.collidepoint(mouse) and not solved:
+        step_solve = True
+        board = deepcopy(template)
+        solved = solve_backtracking()
+        step_solve = False
+
     if check_solved_rect.collidepoint(mouse):
-        pause_time = 1000 # 1 sec
+        pause_time = 1000  # 1 sec
         points = [(0, 0), (SCREEN_SIZE[0], 0), SCREEN_SIZE, (0, SCREEN_SIZE[1])]
 
         # Choose colour based on if the board is valid
@@ -356,7 +396,7 @@ def sidebar_mouse_handle(mouse):
         pygame.display.update()
 
     if check_placed_rect.collidepoint(mouse):
-        pause_time = 1000 # 1 sec
+        pause_time = 1000  # 1 sec
         points = [(0, 0), (SCREEN_SIZE[0], 0), SCREEN_SIZE, (0, SCREEN_SIZE[1])]
 
         # Choose colour based on if the board is valid
@@ -366,6 +406,10 @@ def sidebar_mouse_handle(mouse):
 
         pygame.draw.lines(screen, colour, True, points, 7)
         pygame.display.update()
+
+    if restart_rect.collidepoint(mouse):
+        solved = False
+        board = deepcopy(template)
 
 
 # Inputs: None
@@ -474,7 +518,8 @@ SIDE_BAR = 200
 highlight_tile = [-1, -1]
 draw_highlight_tile = False
 solved = False
-pause_time = 0 # Time to pause after this event loop in milliseconds
+step_solve = False
+pause_time = 0  # Time to pause after this event loop in milliseconds
 
 # Initialize the game
 pygame.init()
@@ -490,6 +535,5 @@ clock = pygame.time.Clock()
 # Create the screen
 screen = pygame.display.set_mode((SCREEN_SIZE[0] + SIDE_BAR, SCREEN_SIZE[1]))
 
-setup_display()
-draw_board()
+draw_display((0, 0))
 game_loop()
