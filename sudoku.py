@@ -143,14 +143,39 @@ def solve_backtracking_helper(row, col):
 # Outputs: valid (Boolean)
 # Returns true if all of the non-zero spaces on the board are valid
 def valid_board():
+    global board
+
     for row in range(9):
         for col in range(9):
-            if board[row][col] != 0:
+            if board[row][col] != 0 and template[row][col] == 0:
                 prev_num = board[row][col]
                 board[row][col] = 0
                 if not valid_play(row, col, prev_num):
+                    # This number was not a valid play at this position
                     board[row][col] = prev_num
-                    # print("Invalid value at " + row + ", " + col)
+                    return False
+                board[row][col] = prev_num
+
+    return True
+
+
+# Inputs: None
+# Outputs: valid (Boolean)
+# Returns true if the board has been solved
+def solved_board():
+    global board
+
+    for row in range(9):
+        for col in range(9):
+            if board[row][col] == 0:
+                # Board is not filled in
+                return False
+            if template[row][col] == 0:
+                prev_num = board[row][col]
+                board[row][col] = 0
+                if not valid_play(row, col, prev_num):
+                    # This number was not a valid play at this position
+                    board[row][col] = prev_num
                     return False
                 board[row][col] = prev_num
 
@@ -248,13 +273,40 @@ def draw_sidebar(mouse):
     pygame.draw.line(screen, BLACK, (x_off, 0), SCREEN_SIZE, 5)
 
     # Set up text
-    text = pygame.font.Font(None, 36)
+    text = pygame.font.Font(None, 28)
 
     # Solve board button
     rect = pygame.Rect(x_off + 25, 25, 150, 50)
     if rect.collidepoint(mouse): pygame.draw.rect(screen, WHITE, rect)
     pygame.draw.rect(screen, BLACK, rect, 5)
     text_surface = text.render("Auto-Solve", True, BLACK)
+    text_rect = text_surface.get_rect()
+    text_rect.center = rect.center
+    screen.blit(text_surface, text_rect)
+
+    # Step-solve button
+    rect = rect.move(0, 75)
+    if rect.collidepoint(mouse): pygame.draw.rect(screen, WHITE, rect)
+    pygame.draw.rect(screen, BLACK, rect, 5)
+    text_surface = text.render("Step-Solve", True, BLACK)
+    text_rect = text_surface.get_rect()
+    text_rect.center = rect.center
+    screen.blit(text_surface, text_rect)
+
+    # Check-Solved button
+    rect = rect.move(0, 75)
+    if rect.collidepoint(mouse): pygame.draw.rect(screen, WHITE, rect)
+    pygame.draw.rect(screen, BLACK, rect, 5)
+    text_surface = text.render("Check Solved", True, BLACK)
+    text_rect = text_surface.get_rect()
+    text_rect.center = rect.center
+    screen.blit(text_surface, text_rect)
+
+    # Check-Placed button
+    rect = rect.move(0, 75)
+    if rect.collidepoint(mouse): pygame.draw.rect(screen, WHITE, rect)
+    pygame.draw.rect(screen, BLACK, rect, 5)
+    text_surface = text.render("Check Placed", True, BLACK)
     text_rect = text_surface.get_rect()
     text_rect.center = rect.center
     screen.blit(text_surface, text_rect)
@@ -278,12 +330,42 @@ def draw_display(mouse):
 def sidebar_mouse_handle(mouse):
     global board
     global solved
+    global pause_time
+
     x_off = SCREEN_SIZE[0]  # X offset to the sidebar
     solve_rect = pygame.Rect(x_off + 25, 25, 150, 50)
+    step_solve_rect = solve_rect.move(0, 75)
+    check_solved_rect = step_solve_rect.move(0, 75)
+    check_placed_rect = check_solved_rect.move(0, 75)
+
 
     if solve_rect.collidepoint(mouse) and not solved:
         board = deepcopy(template)
         solved = solve_backtracking()
+
+    if check_solved_rect.collidepoint(mouse):
+        pause_time = 1000 # 1 sec
+        points = [(0, 0), (SCREEN_SIZE[0], 0), SCREEN_SIZE, (0, SCREEN_SIZE[1])]
+
+        # Choose colour based on if the board is valid
+        colour = RED
+        if solved_board():
+            colour = LIME
+
+        pygame.draw.lines(screen, colour, True, points, 7)
+        pygame.display.update()
+
+    if check_placed_rect.collidepoint(mouse):
+        pause_time = 1000 # 1 sec
+        points = [(0, 0), (SCREEN_SIZE[0], 0), SCREEN_SIZE, (0, SCREEN_SIZE[1])]
+
+        # Choose colour based on if the board is valid
+        colour = RED
+        if valid_board():
+            colour = LIME
+
+        pygame.draw.lines(screen, colour, True, points, 7)
+        pygame.display.update()
 
 
 # Inputs: None
@@ -293,6 +375,7 @@ def game_loop():
     global highlight_tile
     global draw_highlight_tile
     global board
+    global pause_time
 
     running = True
     while running:
@@ -301,13 +384,6 @@ def game_loop():
                 # Exit the game
                 pygame.quit()
                 quit()
-
-            # elif event.type == pygame.KEYDOWN:
-            #     # Solve the sudoku board
-            #     if event.key == pygame.K_RETURN:
-            #         board = deepcopy(template)
-            #         solve_backtracking()
-
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Set the clicked tile. Highlight it when mouse up
                 if pygame.mouse.get_pressed()[0]:
@@ -363,6 +439,10 @@ def game_loop():
                     elif event.key == pygame.K_9:
                         board[highlight_tile[1]][highlight_tile[0]] = 9
 
+        if pause_time:
+            pygame.time.wait(pause_time)
+            pause_time = 0
+
         mouse = pygame.mouse.get_pos()
         draw_display(mouse)
         clock.tick(60)
@@ -385,6 +465,7 @@ board = deepcopy(template)
 WHITE = (255, 255, 255)
 LIGHT_GREY = (240, 240, 240)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
 LIME = (0, 255, 0)
 SCREEN_SIZE = (600, 600)
 SIDE_BAR = 200
@@ -393,6 +474,7 @@ SIDE_BAR = 200
 highlight_tile = [-1, -1]
 draw_highlight_tile = False
 solved = False
+pause_time = 0 # Time to pause after this event loop in milliseconds
 
 # Initialize the game
 pygame.init()
