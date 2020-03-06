@@ -99,12 +99,16 @@ def solve_backtracking_helper(row, col):
 
     if not numbers_to_play:
         # There are no valid numbers
+        if board[row][col] != 0 and row == 8 and col ==8:
+            # At the end of the board, success
+            return True
+
         if board[row][col] != 0:
             # If there was already a number there, move forward
             if col == 8:
                 if solve_backtracking_helper(row + 1, 0):
                     return True
-            elif row != 8:
+            else:
                 if solve_backtracking_helper(row, col + 1):
                     return True
 
@@ -185,10 +189,10 @@ def valid_board():
                         channel_height = SCREEN_SIZE[1] / 9
 
                         # Transparent surface
-                        overlay = pygame.Surface((channel_width, channel_height), pygame.SRCALPHA)
+                        overlay = pygame.Surface((int(channel_width), int(channel_height)), pygame.SRCALPHA)
                         overlay.fill((255, 0, 0, 63))
 
-                        screen.blit(overlay, (col * channel_width, row * channel_height))
+                        screen.blit(overlay, (int(col * channel_width), int(row * channel_height)))
 
                     return False
                 board[row][col] = prev_num
@@ -249,8 +253,8 @@ def setup_display():
         channel_width = SCREEN_SIZE[1] / 9
 
         pygame.draw.line(screen, BLACK,
-                         (0, row_divider * channel_width),
-                         (SCREEN_SIZE[0], row_divider * channel_width),
+                         (0, int(row_divider * channel_width)),
+                         (SCREEN_SIZE[0], int(row_divider * channel_width)),
                          line_width)
 
     # Draw the column dividers
@@ -262,8 +266,8 @@ def setup_display():
         channel_width = SCREEN_SIZE[0] / 9
 
         pygame.draw.line(screen, BLACK,
-                         (col_divider * channel_width, 0),
-                         (col_divider * channel_width, SCREEN_SIZE[1]),
+                         (int(col_divider * channel_width), 0),
+                         (int(col_divider * channel_width), SCREEN_SIZE[1]),
                          line_width)
 
 
@@ -283,7 +287,7 @@ def draw_board():
                     colour = (100, 100, 100)
                 text_surface = text.render(str(board[row][col]), True, colour)
                 text_rect = text_surface.get_rect()
-                text_rect.center = ((col + 0.5) * channel_width, (row + 0.5) * channel_height)
+                text_rect.center = (int((col + 0.5) * channel_width), int((row + 0.5) * channel_height))
                 screen.blit(text_surface, text_rect)
 
 
@@ -295,10 +299,10 @@ def draw_highlight(col, row):
 
     channel_width = SCREEN_SIZE[0] / 9
     channel_height = SCREEN_SIZE[1] / 9
-    points = [(col * channel_width, row * channel_height),
-              ((col + 1) * channel_width, row * channel_height),
-              ((col + 1) * channel_width, (row + 1) * channel_height),
-              (col * channel_width, (row + 1) * channel_height)]
+    points = [(int(col * channel_width), int(row * channel_height)),
+              (int((col + 1) * channel_width), int(row * channel_height)),
+              (int((col + 1) * channel_width), int((row + 1) * channel_height)),
+              (int(col * channel_width), int((row + 1) * channel_height))]
     pygame.draw.lines(screen, LIME, True, points, 5)
 
 
