@@ -19,6 +19,7 @@
 '''
 
 from copy import deepcopy
+import random
 
 import pygame
 
@@ -79,7 +80,7 @@ def valid_numbers(row, col):
 # exhausted. If the board is valid at any point then it returns true.
 def solve_backtracking():
     solve_backtracking_helper(0, 0)
-    return valid_board()
+    return solved_board()
 
 
 # Inputs: (int) row, (int) column
@@ -88,7 +89,7 @@ def solve_backtracking():
 def solve_backtracking_helper(row, col):
     # Check that row and col did not go out of bounds
     if row < 0 or row > 8 or col < 0 or col > 8:
-        print("Row or column out of range\nRow: " + row + "\nColumn: " + col)
+        print("Row or column out of range\nRow: " + str(row) + "\nColumn: " + str(col))
         return False
 
     global board
@@ -103,7 +104,7 @@ def solve_backtracking_helper(row, col):
             if col == 8:
                 if solve_backtracking_helper(row + 1, 0):
                     return True
-            else:
+            elif row != 8:
                 if solve_backtracking_helper(row, col + 1):
                     return True
 
@@ -127,7 +128,7 @@ def solve_backtracking_helper(row, col):
         # Step through the process if requested
         if step_solve:
             draw_display((0, 0))
-            pygame.time.wait(100)
+            pygame.time.wait(25)
 
             # Allow quit signal
             for event in pygame.event.get():
@@ -150,7 +151,7 @@ def solve_backtracking_helper(row, col):
         # Step through the process if requested
         if step_solve:
             draw_display((0, 0))
-            pygame.time.wait(100)
+            pygame.time.wait(25)
 
             # Allow quit signal
             for event in pygame.event.get():
@@ -347,6 +348,15 @@ def draw_sidebar(mouse):
     text_rect.center = rect.center
     screen.blit(text_surface, text_rect)
 
+    # Rand Board button
+    rect = rect.move(0, 75)
+    if rect.collidepoint(mouse): pygame.draw.rect(screen, WHITE, rect)
+    pygame.draw.rect(screen, BLACK, rect, 5)
+    text_surface = text.render("Rand Board", True, BLACK)
+    text_rect = text_surface.get_rect()
+    text_rect.center = rect.center
+    screen.blit(text_surface, text_rect)
+
     # Restart button
     rect = rect.move(0, 75)
     if rect.collidepoint(mouse): pygame.draw.rect(screen, WHITE, rect)
@@ -374,6 +384,7 @@ def draw_display(mouse):
 # Handles mouse clicking when inside sidebar
 def sidebar_mouse_handle(mouse):
     global board
+    global template
     global solved
     global step_solve
     global pause_time
@@ -386,7 +397,8 @@ def sidebar_mouse_handle(mouse):
     step_solve_rect = solve_rect.move(0, 75)
     check_solved_rect = step_solve_rect.move(0, 75)
     check_placed_rect = check_solved_rect.move(0, 75)
-    restart_rect = check_placed_rect.move(0, 75)
+    rand_board_rect = check_placed_rect.move(0, 75)
+    restart_rect = rand_board_rect.move(0, 75)
 
     if solve_rect.collidepoint(mouse) and not solved:
         board = deepcopy(template)
@@ -430,6 +442,11 @@ def sidebar_mouse_handle(mouse):
 
         pygame.draw.lines(screen, colour, True, points, 7)
         pygame.display.update()
+
+    if rand_board_rect.collidepoint(mouse):
+        template = deepcopy(template_boards[random.randint(0, 4)])
+        solved = False
+        board = deepcopy(template)
 
     if restart_rect.collidepoint(mouse):
         solved = False
@@ -516,15 +533,57 @@ def game_loop():
         clock.tick(60)
 
 
-template = [[0, 0, 0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 6, 0, 0, 0],
-            [0, 0, 0, 4, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 8, 0, 0, 0, 0],
-            [2, 0, 9, 0, 0, 0, 0, 0, 7],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 3, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+template_boards = [[[0, 0, 0, 0, 0, 1, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 6, 0, 0, 0],
+                    [0, 0, 0, 4, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 8, 0, 0, 0, 0],
+                    [2, 0, 9, 0, 0, 0, 0, 0, 7],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 3, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0]],
+
+                   [[0, 6, 0, 3, 0, 0, 8, 0, 4],
+                    [5, 3, 7, 0, 9, 0, 0, 0, 0],
+                    [0, 4, 0, 0, 0, 6, 3, 0, 7],
+                    [0, 9, 0, 0, 5, 1, 2, 3, 8],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [7, 1, 3, 6, 2, 0, 0, 4, 0],
+                    [3, 0, 6, 4, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 6, 0, 5, 2, 3],
+                    [1, 0, 2, 0, 0, 9, 0, 8, 0]],
+
+                   [[0, 0, 0, 0, 0, 7, 0, 0, 0],
+                    [0, 0, 2, 4, 0, 6, 3, 0, 0],
+                    [0, 1, 7, 0, 0, 0, 9, 6, 0],
+                    [5, 8, 0, 0, 0, 0, 0, 3, 0],
+                    [0, 0, 0, 0, 9, 0, 0, 0, 0],
+                    [0, 7, 0, 0, 0, 0, 0, 4, 2],
+                    [0, 9, 4, 0, 0, 0, 6, 5, 0],
+                    [0, 0, 5, 2, 0, 8, 1, 0, 0],
+                    [0, 0, 0, 5, 0, 0, 0, 0, 0]],
+
+                   [[0, 9, 0, 0, 0, 3, 6, 0, 0],
+                    [0, 0, 0, 1, 0, 0, 2, 0, 0],
+                    [3, 0, 2, 0, 0, 6, 0, 9, 8],
+                    [0, 0, 0, 0, 0, 0, 1, 2, 5],
+                    [0, 0, 4, 0, 0, 0, 8, 0, 0],
+                    [5, 2, 9, 0, 0, 0, 0, 0, 0],
+                    [2, 4, 0, 7, 0, 0, 5, 0, 3],
+                    [0, 0, 3, 0, 0, 2, 0, 0, 0],
+                    [0, 0, 8, 3, 0, 0, 0, 1, 0]],
+
+                   [[1, 0, 0, 2, 0, 0, 3, 0, 0],
+                    [2, 0, 0, 3, 0, 0, 4, 0, 0],
+                    [3, 0, 0, 4, 0, 0, 5, 0, 0],
+                    [4, 0, 0, 5, 0, 0, 6, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 3, 0, 0, 4, 0, 0, 5],
+                    [0, 0, 4, 0, 0, 5, 0, 0, 6],
+                    [0, 0, 5, 0, 0, 6, 0, 0, 7],
+                    [0, 0, 6, 0, 0, 7, 0, 0, 8]]]
+
+template = deepcopy(template_boards[0])
 
 # Board that the user will edit when attempting to solve
 board = deepcopy(template)
@@ -538,7 +597,7 @@ LIME = (0, 255, 0)
 SCREEN_SIZE = (600, 600)
 SIDE_BAR = 200
 
-# Globals
+# Globals and Flags
 highlight_tile = [-1, -1]
 draw_highlight_tile = False
 solved = False
